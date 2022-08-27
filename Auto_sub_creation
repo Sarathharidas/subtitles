@@ -1,0 +1,342 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jun  8 23:01:01 2022
+
+@author: sarat
+"""
+import pandas 
+import cv2 
+import os
+import speech_recognition as sr 
+import os
+import speech_recognition as sr
+from pydub import AudioSegment
+from pydub.silence import split_on_silence
+import librosa
+r = sr.Recognizer()
+from googletrans import Translator
+translator = Translator()
+import datetime
+import moviepy.editor as mp
+from pydub import AudioSegment
+from playsound import playsound
+# =============================
+cap = cv2.VideoCapture('')
+
+#while(cap.isOpened()):
+ #   ret, frame = cap.read()
+
+#    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+ #   cv2.imshow('frame',gray)
+  #  if cv2.waitKey(1) & 0xFF == ord('q'):
+   #     break
+
+# =============================================================================
+# cap.release()
+# cv2.destroyAllWindows()
+# import os
+# import speech_recognition as sr
+# from pydub import AudioSegment
+# from pydub.silence import split_on_silence
+# r = sr.Recognizer()
+# 
+# 
+# # open the file
+# with sr.AudioFile('WhatsApp Ptt 2022-06-12 at 10.04.11 PM.wav') as source:
+#     # listen for the data (load audio to memory)
+#     audio_data = r.record(source, offset = 3)
+#     # recognize (convert from speech to text)
+#     text = r.recognize_google(audio_data, language="ta-IN")
+#     print(translator.translate(text).text)
+#     
+# from googletrans import Translator
+# translator = Translator()
+# =============================================================================
+
+# =============================================================================
+# 
+# 
+# #### Counting and line 
+# 
+# audio_files = 'WhatsApp Ptt 2022-06-12 at 10.04.11 PM.wav'
+# count = 0
+# for audio_path in audio_files:
+#      audio = FLAC(audio_list[count] + '.' + output_format) #specify audio file for length calculation
+#      audio_length = audio.info.length #get length of audio file
+# 
+#      #n.b. mutagen module used for calculating audio length
+# 
+#      number_of_iterations = int(audio_length/2)
+# 
+#     if number_of_iterations == 0:
+#         number_of_iterations = 1
+# 
+#      file = sr.AudioFile(audio_list[count] + '.' + output_format)
+# 
+# 
+#     for i in range(number_of_iterations):
+#         with file as source:
+#             audio = r.record(source, offset = i*20, duration = 20)
+# 
+#          google = r.recognize_google(audio, language = 'ta-IN' )
+#          count = count + 1
+#          print(google)
+# =============================================================================
+
+
+############################################################################
+dic_translation = {}
+
+file = 'Thanmatra_audio.wav'
+count = 0 
+while (count<348):
+    with sr.AudioFile('Thanmatra_audio.wav') as source:
+    # listen for the data (load audio to memory)
+        print(count)
+        audio_data = r.record(source, offset = count*10, duration=10)
+    # recognize (convert from speech to text)
+        try:
+            text = r.recognize_google(audio_data, language="ml-IN")
+            print(text)
+            print(translator.translate(text).text)
+            dic_translation[count] = translator.translate(text).text
+        except:
+            dic_translation[count]= ''
+        count = count+1
+        
+with sr.AudioFile('Thanmatra_audio.wav') as source:
+    audio_data = r.record(source, offset = 0*3, duration=3)
+    text = r.recognize_google(audio_data, language="ml-IN")
+    print(translator.translate(text).text)
+
+count = 0
+
+start_time = datetime.timedelta(seconds=0)
+f = open('subtitle_thanmathra2', 'w')
+while(count<=348):
+    print(count)
+    
+    f.write((str(count)))
+    f.write('\n')
+    f.write(str(start_time))
+    f.write(',0')
+    f.write(' --> ')
+    f.write(str(start_time + datetime.timedelta(seconds=10)))
+    f.write(',0')
+    f.write('\n')
+    try:
+        f.write(dic_translation[count])
+    except:
+        f.write('')
+    f.write('\n')
+    f.write('\n')
+    count = count + 1
+    start_time = start_time + datetime.timedelta(seconds=10)
+f.close()
+
+
+with sr.AudioFile('Thanmatra_audio.wav') as source:
+# listen for the data (load audio to memory)
+  
+    audio_data = r.record(source, offset = 1872, duration=20)
+    text = r.recognize_google(audio_data, language="ml-IN")
+    print(translator.translate(text).text)
+    
+###########################################################################################
+def get_audio(movie):
+    my_clip = mp.VideoFileClip(r"movie.mp4")
+    my_clip.audio.write_audiofile(r"traffic_audio.wav")
+     
+
+
+
+def movie_translation_subtitle(movie_audio_wav, length_each_translation):
+    
+    dic_translation = {}
+    audio_length = librosa.get_duration(filename=movie_audio_wav)
+   
+
+    count = 0 
+    while (count<(audio_length/length_each_translation)):
+        with sr.AudioFile(movie_audio_wav) as source:
+        # listen for the data (load audio to memory)
+            print(count)
+            audio_data = r.record(source, offset = count*length_each_translation, 
+                                  duration=length_each_translation)
+        # recognize (convert from speech to text)
+            try:
+                text = r.recognize_google(audio_data, language="ml-IN")
+                print(text)
+                print(translator.translate(text).text)
+                dic_translation[count] = translator.translate(text).text
+            except:
+                dic_translation[count]= ''
+            count = count+1
+    return dic_translation
+
+
+
+
+
+
+def write_file(dic, file_name, length_each_translation ):
+    count = 0
+    l = len(dic)
+    start_time = datetime.timedelta(seconds=0)
+    f = open(file_name, 'w')
+    l = len(dic)
+    while(count<=l):
+        print(count)
+        
+        f.write((str(count)))
+        f.write('\n')
+        f.write(str(start_time))
+        f.write(',0')
+        f.write(' --> ')
+        f.write(str(start_time + datetime.timedelta(seconds=length_each_translation)))
+        f.write(',0')
+        f.write('\n')
+        try:
+            f.write(dic_translation[count])
+        except:
+            f.write('')
+        f.write('\n')
+        f.write('\n')
+        count = count + 1
+        start_time = start_time + datetime.timedelta(seconds=length_each_translation)
+    f.close()
+    
+
+dic_translation = movie_translation_subtitle('traffic_audio.wav', 15)
+    
+write_file(dic_translation, 'traffic_subtitle', 15)
+
+
+
+
+###########################################################################################
+### Cutting more naturally 
+
+def silence_based_conversion(path = "traffic_audio.wav"):
+   
+    # open the audio file stored in
+    # the local system as a wav file.
+    song = AudioSegment.from_wav(path)
+  
+    # open a file where we will concatenate  
+    # and store the recognized text
+    #fh = open("recognized.txt", "w+")
+          
+    # split track where silence is 0.5 seconds 
+    # or more and get chunks
+    chunks = split_on_silence(song,
+        # must be silent for at least 0.5 seconds
+        # or 500 ms. adjust this value based on user
+        # requirement. if the speaker stays silent for 
+        # longer, increase this value. else, decrease it.
+        min_silence_len = 500,
+  
+        # consider it silent if quieter than -16 dBFS
+        # adjust this per requirement
+        silence_thresh = -16
+    )
+     
+    # create a directory to store the audio chunks.
+    try:
+        os.mkdir('audio_chunks')
+    except(FileExistsError):
+        pass
+  
+    # move into the directory to
+    # store the audio files.
+    os.chdir('audio_chunks')
+    dic_translation = {}
+    audio_len_dic ={}
+    chunk_list=[]
+    i = 0
+    # process each chunk
+    for chunk in chunks:
+              
+        # Create 0.5 seconds silence chunk
+        chunk_silent = AudioSegment.silent(duration = 10)
+  
+        # add 0.5 sec silence to beginning and 
+        # end of audio chunk. This is done so that
+        # it doesn't seem abruptly sliced.
+        audio_chunk = chunk_silent + chunk + chunk_silent
+  
+        # export audio chunk and save it in 
+        # the current directory
+        chunk_list.append(audio_chunk)
+    return chunk_list
+       
+
+
+chunk_list = silence_based_conversion("traffic_audio.wav")
+  
+
+
+def movie_translation_subtitle(chunk_list):
+    
+    dic_translation = {}
+    length_dic = {}
+    count = 0 
+    
+    for chunk in chunk_list:
+        audio_length = librosa.get_duration(filename=chunk)
+        length_dic[count] = audio_length
+    with sr.AudioFile(chunk) as source:
+        # listen for the data (load audio to memory)
+            print(count)
+            audio_data = r.record(source).
+        # recognize (convert from speech to text)
+            try:
+                text = r.recognize_google(audio_data, language="ml-IN")
+                print(text)
+                translate_text = translator.translate(text).text
+                print(translate_text)
+                dic_translation[count] = translate_text
+            except:
+                dic_translation[count]= ''
+            count = count+1
+    return dic_translation, length_dic
+
+
+
+#################### Trying to Get silence #################################
+
+song = AudioSegment.from_wav("C:/Users/sarat/downloads/traffic_audio.wav")
+fh = open("traffic_subtitle.txt", "w+")
+chunks = split_on_silence(song,
+        # must be silent for at least 0.5 seconds
+        # or 500 ms. adjust this value based on user
+        # requirement. if the speaker stays silent for 
+        # longer, increase this value. else, decrease it.
+        min_silence_len = 500,
+  
+        # consider it silent if quieter than -16 dBFS
+        # adjust this per requirement
+        silence_thresh = -16
+    )
+
+os.chdir('traffic_audio_chunks')
+    for chunk in chunks:
+                  
+        # Create 0.5 seconds silence chunk
+        chunk_silent = AudioSegment.silent(duration = 10)
+  
+        # add 0.5 sec silence to beginning and 
+        # end of audio chunk. This is done so that
+        # it doesn't seem abruptly sliced.
+        audio_chunk = chunk_silent + chunk + chunk_silent
+  
+        # export audio chunk and save it in 
+        # the current directory.
+        print("saving chunk{0}.wav".format(i))
+        # specify the bitrate to be 192 k
+        audio_chunk.export("./chunk{0}.wav".format(i), bitrate ='192k', format ="wav")
+  
+        # the name of the newly created chunk
+        filename = 'chunk'+str(i)+'.wav'
+
